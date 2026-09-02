@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart CCTV - Deteksi Kendaraan & Traffic Dashboard</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=Fira+Code:wght@400;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <link rel="stylesheet" href="/src/styles/index.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Header Command Center -->
+    <header class="header-bar">
+      <div class="header-left">
+        <div class="logo-box">
+          <i data-lucide="video" class="logo-icon"></i>
+          <div>
+            <h1 class="app-title">TRAFFIC EYE <span class="badge-ai">YOLOv11</span></h1>
+            <p class="app-subtitle">Smart City CCTV Vehicle Detection & Real-Time Analytics</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <!-- Live Status Pill -->
+        <div class="live-status-pill">
+          <span class="live-pulse"></span>
+          <span id="system-status-text">SYSTEM ONLINE</span>
+        </div>
+
+        <!-- Clock & FPS -->
+        <div class="telemetry-pill">
+          <i data-lucide="activity"></i>
+          <span>FPS: <strong id="val-fps">0.0</strong></span>
+        </div>
+
+        <div class="telemetry-pill clock-pill">
+          <i data-lucide="clock"></i>
+          <span id="val-clock">00:00:00</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Bento Grid Content -->
+    <main class="dashboard-grid">
+      
+      <!-- Video Stream Player (Full Width) -->
+      <section class="grid-col-8">
+        <div class="glass-card stream-card">
+          <div class="card-header">
+            <div class="header-info">
+              <i data-lucide="camera" class="accent-icon"></i>
+              <div>
+                <h2 id="cam-name" class="card-title">CCTV TITIK NOL KILOMETER JOGJA</h2>
+                <p id="cam-loc" class="card-subtitle">D.I. YOGYAKARTA • LIVE FEED</p>
+              </div>
+            </div>
+            
+            <div class="stream-actions">
+              <button id="btn-toggle-bbox" class="action-btn active" title="Toggle YOLO Bounding Box">
+                <i data-lucide="scan"></i> Bbox
+              </button>
+              <button id="btn-toggle-roi" class="action-btn active" title="Toggle ROI Counting Line">
+                <i data-lucide="git-commit"></i> ROI Line
+              </button>
+              <button id="btn-draw-roi" class="action-btn" title="Klik untuk gambar garis ROI baru">
+                <i data-lucide="edit-3"></i> Atur Line
+              </button>
+              <button id="btn-snapshot" class="action-btn btn-primary" title="Download Current Frame Snapshot">
+                <i data-lucide="camera"></i> Snapshot
+              </button>
+            </div>
+          </div>
+
+          <!-- Live Video Container (Single Mode) -->
+          <div id="video-container" class="video-container single-mode">
+            <!-- ROI Line Drawing Canvas Overlay -->
+            <canvas id="roi-draw-canvas" class="roi-draw-canvas hidden"></canvas>
+
+            <div class="video-slot-box" id="slot-box-1">
+              <div class="slot-badge" id="slot-name-1">LIVE: TITIK NOL KILOMETER JOGJA</div>
+              <img id="video-stream-1" src="http://localhost:8000/api/stream/video" alt="CCTV Stream Feed" crossorigin="anonymous">
+            </div>
+
+            <div id="video-loader" class="video-loader-overlay hidden">
+              <div class="spinner"></div>
+              <p>Reconnecting Stream...</p>
+            </div>
+          </div>
+
+          <!-- Video Footer Controls -->
+          <div class="stream-footer">
+            <div class="stream-badge"><i data-lucide="rss"></i> Live HLS Stream</div>
+            <div class="stream-badge"><i data-lucide="cpu"></i> Ultralytics YOLOv11n</div>
+            <div class="stream-badge"><i data-lucide="shield-check"></i> ByteTrack Tracking</div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- Right Column: Telemetry & KPI Cards (4 Cols) -->
+      <section class="grid-col-4">
+        
+        <!-- Density Status Badge Card -->
+        <div class="glass-card density-card">
+          <div class="density-header">
+            <span class="card-label">KEPADATAN LALU LINTAS</span>
+            <span id="density-badge" class="density-badge badge-lancar">LANCAR</span>
+          </div>
+          <div class="density-gauge-box">
+            <div class="density-score-text">
+              <span id="val-density-score">0</span><small>/100</small>
+            </div>
+            <div class="density-progress-bg">
+              <div id="density-progress-bar" class="density-progress-fill fill-lancar" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Vehicles KPI Grid -->
+        <div class="kpi-grid">
+          <!-- Total Active Card -->
+          <div class="glass-card kpi-card kpi-total">
+            <div class="kpi-icon-box icon-total">
+              <i data-lucide="car"></i>
+            </div>
+            <div class="kpi-content">
+              <span class="kpi-label">TOTAL AKTIF</span>
+              <h3 id="val-total-active" class="kpi-value">0</h3>
+              <span class="kpi-subtext">Kendaraan dalam Frame</span>
+            </div>
+          </div>
+
+          <!-- Line Crossing Count Card -->
+          <div class="glass-card kpi-card kpi-crossing">
+            <div class="kpi-icon-box icon-crossing">
+              <i data-lucide="arrow-down-up"></i>
+            </div>
+            <div class="kpi-content">
+              <span class="kpi-label">ROI CROSSING</span>
+              <h3 id="val-roi-count" class="kpi-value">0</h3>
+              <span class="kpi-subtext">Total Melintasi Garis</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vehicle Classes Breakdown Grid -->
+        <div class="glass-card vehicle-breakdown-card">
+          <h3 class="card-title-sm"><i data-lucide="pie-chart"></i> DEKOMPOSISI KENDARAAN <span class="card-label" style="font-size:10px;margin-left:4px;">(TOTAL TERDETEKSI)</span></h3>
+          <div class="vehicle-list">
+            
+            <!-- Car -->
+            <div class="vehicle-item">
+              <div class="vehicle-info">
+                <span class="v-dot dot-car"></span>
+                <span class="v-name">Mobil (Car)</span>
+              </div>
+              <span id="val-car-count" class="v-count">0</span>
+            </div>
+
+            <!-- Motorcycle -->
+            <div class="vehicle-item">
+              <div class="vehicle-info">
+                <span class="v-dot dot-motor"></span>
+                <span class="v-name">Sepeda Motor</span>
+              </div>
+              <span id="val-motor-count" class="v-count">0</span>
+            </div>
+
+            <!-- Bus -->
+            <div class="vehicle-item">
+              <div class="vehicle-info">
+                <span class="v-dot dot-bus"></span>
+                <span class="v-name">Bus</span>
+              </div>
+              <span id="val-bus-count" class="v-count">0</span>
+            </div>
+
+            <!-- Truck -->
+            <div class="vehicle-item">
+              <div class="vehicle-info">
+                <span class="v-dot dot-truck"></span>
+                <span class="v-name">Truk</span>
+              </div>
+              <span id="val-truck-count" class="v-count">0</span>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Realtime Density Chart Card -->
+        <div class="glass-card chart-card">
+          <div class="card-header-sm">
+            <span class="card-label"><i data-lucide="line-chart"></i> TREN KEPADATAN (REAL-TIME)</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="densityChart"></canvas>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Bottom Bar: Multi-CCTV Camera Switcher (12 Cols) -->
+      <section class="grid-col-12">
+        <div class="glass-card cctv-selector-card">
+          <div class="cctv-header">
+            <div class="cctv-title-group">
+              <h3 class="card-title-sm"><i data-lucide="video"></i> PILIH KAMERA CCTV PUBLIK</h3>
+              <span id="cctv-count-tag" class="cctv-count-tag">3 Preset Available</span>
+            </div>
+            <button id="btn-open-custom" class="action-btn btn-primary btn-sm">
+              <i data-lucide="plus-circle"></i> Tambah Stream Custom
+            </button>
+          </div>
+          <div id="cctv-list" class="cctv-list-grid">
+            <!-- Dynamically populated CCTV Selector Buttons -->
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Custom CCTV Input Modal -->
+    <div id="custom-modal" class="modal-backdrop hidden">
+      <div class="glass-card modal-container">
+        <div class="modal-header">
+          <h3 class="modal-title"><i data-lucide="plus-circle"></i> Input Link CCTV Publik Baru</h3>
+          <button id="btn-close-modal" class="modal-close-btn">&times;</button>
+        </div>
+        <form id="form-custom-cctv" class="modal-form">
+          <div class="form-group">
+            <label for="input-cam-name">Nama CCTV / Simpang Jalan</label>
+            <input type="text" id="input-cam-name" placeholder="Misal: Simpang Dago ATCS" required>
+          </div>
+          <div class="form-group">
+            <label for="input-cam-loc">Kota / Wilayah</label>
+            <input type="text" id="input-cam-loc" placeholder="Misal: Bandung, Jawa Barat" required>
+          </div>
+          <div class="form-group">
+            <label for="input-cam-url">URL Stream CCTV (RTSP / HLS .m3u8 / MP4)</label>
+            <input type="url" id="input-cam-url" placeholder="https://stream.dishub.bandung.go.id/hls/live.m3u8" required>
+          </div>
+          <div class="form-group">
+            <label for="select-target-slot">Putar di Layar</label>
+            <select id="select-target-slot" class="form-select">
+              <option value="1">Layar 1 (Utama)</option>
+              <option value="2">Layar 2 (Sekunder)</option>
+            </select>
+          </div>
+          <div class="modal-footer">
+            <button type="button" id="btn-cancel-modal" class="action-btn">Batal</button>
+            <button type="submit" class="action-btn btn-primary"><i data-lucide="check"></i> Simpan & Putar Stream</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
