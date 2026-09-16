@@ -95,7 +95,7 @@ flowchart TD
    ```bash
    python -m venv venv
    # Windows:
-   venv\Scriptsctivate
+   venv\Scripts\activate
    # Linux/macOS:
    source venv/bin/activate
    ```
