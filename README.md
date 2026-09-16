@@ -1,4 +1,4 @@
-﻿# Sistem Deteksi Kendaraan dan Analisis Lalu Lintas Real-Time (YOLO11 & FastAPI)
+# Sistem Deteksi Kendaraan dan Analisis Lalu Lintas Real-Time (YOLO11 & FastAPI)
 
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100%2B-009688.svg)](https://fastapi.tiangolo.com/)
@@ -33,7 +33,7 @@ Sistem Transportasi Cerdas (Intelligent Transportation System / ITS) berbasis **
 
 ## Arsitektur Sistem
 
-`mermaid
+```mermaid
 flowchart TD
     subgraph Sumber_Video["1. Sumber Umpan Video"]
         RTSP["Aliran RTSP Publik"]
@@ -70,7 +70,7 @@ flowchart TD
     WS --> KPIs
     WS --> Chart
     Controls --> Decoder
-`
+```
 
 ---
 
@@ -87,56 +87,56 @@ flowchart TD
 ### 1. Konfigurasi Backend (FastAPI & YOLO11)
 
 1. Masuk ke direktori backend:
-   `ash
+   ```bash
    cd backend
-   `
+   ```
 
 2. Buat dan aktifkan virtual environment (opsional tetapi disarankan):
-   `ash
+   ```bash
    python -m venv venv
    # Windows:
-   venv\Scripts\activate
+   venv\Scriptsctivate
    # Linux/macOS:
    source venv/bin/activate
-   `
+   ```
 
 3. Pasang paket dependensi yang diperlukan:
-   `ash
+   ```bash
    pip install -r requirements.txt
-   `
+   ```
 
 4. Jalankan server FastAPI:
-   `ash
+   ```bash
    python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-   `
+   ```
 
-   - Dokumentasi Interaktif Swagger UI: http://localhost:8000/docs
-   - Aliran Video MJPEG: http://localhost:8000/api/stream/video
-   - Endpoint WebSocket Telemetri: ws://localhost:8000/ws/telemetry
+   - Dokumentasi Interaktif Swagger UI: `http://localhost:8000/docs`
+   - Aliran Video MJPEG: `http://localhost:8000/api/stream/video`
+   - Endpoint WebSocket Telemetri: `ws://localhost:8000/ws/telemetry`
 
 ---
 
 ### 2. Konfigurasi Frontend (Dashboard Web)
 
 1. Buka terminal baru dan masuk ke direktori frontend:
-   `ash
+   ```bash
    cd frontend
-   `
+   ```
 
 2. Pasang paket npm:
-   `ash
+   ```bash
    npm install
-   `
+   ```
 
 3. Jalankan server pengembang Vite:
-   `ash
+   ```bash
    npm run dev
-   `
+   ```
 
 4. Buka peramban (browser) dan akses alamat:
-   `	ext
+   ```text
    http://localhost:3000
-   `
+   ```
 
 ---
 
@@ -144,19 +144,19 @@ flowchart TD
 
 | Metode | Endpoint | Deskripsi |
 | :--- | :--- | :--- |
-| GET | /api/health | Status server backend, kamera aktif, versi model, dan FPS langsung |
-| GET | /api/cameras | Daftar preset sumber aliran kamera CCTV yang tersedia |
-| POST | /api/stream/select | Mengubah sumber kamera aktif ({ "camera_id": "cam-01" }) |
-| POST | /api/stream/toggle | Mengaktifkan/menonaktifkan overlay bounding box dan garis ROI |
-| GET | /api/stream/video | Aliran video real-time berformat MJPEG |
-| WS | /ws/telemetry | Endpoint WebSocket penyiaran data telemetri JSON (frekuensi 5Hz) |
-| GET | /api/snapshot | Mengunduh berkas tangkapan layar JPEG dari frame terkini |
+| `GET` | `/api/health` | Status server backend, kamera aktif, versi model, dan FPS langsung |
+| `GET` | `/api/cameras` | Daftar preset sumber aliran kamera CCTV yang tersedia |
+| `POST` | `/api/stream/select` | Mengubah sumber kamera aktif (`{ "camera_id": "cam-01" }`) |
+| `POST` | `/api/stream/toggle` | Mengaktifkan/menonaktifkan overlay bounding box dan garis ROI |
+| `GET` | `/api/stream/video` | Aliran video real-time berformat MJPEG |
+| `WS` | `/ws/telemetry` | Endpoint WebSocket penyiaran data telemetri JSON (frekuensi 5Hz) |
+| `GET` | `/api/snapshot` | Mengunduh berkas tangkapan layar JPEG dari frame terkini |
 
 ---
 
 ## Struktur Direktori Repositori
 
-`	ext
+```text
 Deteksi-Kendaraan/
 ├── backend/
 │   ├── app/
@@ -183,17 +183,18 @@ Deteksi-Kendaraan/
 ├── PRD.md                        # Dokumen Persyaratan Produk (Product Requirements Document)
 ├── StyleGuide.md                 # Pedoman standar desain antarmuka dan palet warna (UI/UX)
 ├── Tasks.md                      # Log tugas pengembangan, daftar checklist, dan peta jalan fitur
+├── .gitignore                    # Konfigurasi pengabaian berkas sementara oleh Git
 └── README.md                     # Dokumentasi komprehensif proyek
-`
+```
 
 ### Penjelasan Modul Utama
 
 | Modul / Sub-Sistem | Komponen Utama | Peran dan Tanggung Jawab |
 | :--- | :--- | :--- |
-| **AI & Analytics Backend** | detector.py, nalytics.py | Menjalankan inferensi model YOLO11 pada frame video, melakukan pelacakan id kendaraan antar-frame (ByteTrack), menghitung klasifikasi kepadatan lalu lintas, serta menghitung kendaraan yang melewati garis batas ROI. |
-| **Stream & Transmission** | stream_handler.py, main.py | Menangani pembacaan sumber video multi-protokol (RTSP, HLS, MP4), menyediakan endpoint MJPEG untuk streaming visual berlatensi rendah, dan menyiarkan telemetri metrik secara real-time via WebSocket. |
-| **Frontend Web Dashboard** | main.js, index.css, index.html | Menampilkan antarmuka operator modern berbasis web untuk memantau umpan kamera secara langsung, memvisualisasikan grafik tren volume per menit, serta memberikan kendali penuh pada pengubahan kamera dan sakelar anotasi. |
-| **Dokumentasi Proyek** | PRD.md, StyleGuide.md, Tasks.md | Menyediakan spesifikasi kebutuhan fungsional, pedoman desain UI/UX, dan panduan teknis pengembangan sistem. |
+| **AI & Analytics Backend** | `detector.py`, `analytics.py` | Menjalankan inferensi model YOLO11 pada frame video, melakukan pelacakan id kendaraan antar-frame (ByteTrack), menghitung klasifikasi kepadatan lalu lintas, serta menghitung kendaraan yang melewati garis batas ROI. |
+| **Stream & Transmission** | `stream_handler.py`, `main.py` | Menangani pembacaan sumber video multi-protokol (RTSP, HLS, MP4), menyediakan endpoint MJPEG untuk streaming visual berlatensi rendah, dan menyiarkan telemetri metrik secara real-time via WebSocket. |
+| **Frontend Web Dashboard** | `main.js`, `index.css`, `index.html` | Menampilkan antarmuka operator modern berbasis web untuk memantau umpan kamera secara langsung, memvisualisasikan grafik tren volume per menit, serta memberikan kendali penuh pada pengubahan kamera dan sakelar anotasi. |
+| **Dokumentasi Proyek** | `PRD.md`, `StyleGuide.md`, `Tasks.md` | Menyediakan spesifikasi kebutuhan fungsional, pedoman desain UI/UX, dan panduan teknis pengembangan sistem. |
 
 ---
 
