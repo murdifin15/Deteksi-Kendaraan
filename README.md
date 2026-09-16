@@ -160,29 +160,40 @@ flowchart TD
 Deteksi-Kendaraan/
 ├── backend/
 │   ├── app/
-│   │   ├── __init__.py
-│   │   ├── analytics.py        # Logika penghitungan kendaraan, status kepadatan, dan ROI
-│   │   ├── config.py           # Konfigurasi preset, pemetaan kelas kendaraan, dan koordinat ROI
-│   │   ├── detector.py         # Integrasi model YOLO11 dan ByteTrack
-│   │   ├── main.py             # Endpoint REST API FastAPI dan server WebSocket
-│   │   └── stream_handler.py   # Pengambilan video stream OpenCV dan rekoneksi otomatis
+│   │   ├── __init__.py           # Inisialisasi modul paket Python
+│   │   ├── analytics.py          # Modul perhitungan volume kendaraan, tingkat kepadatan, & ROI line
+│   │   ├── config.py             # Konfigurasi preset kamera, pemetaan kelas kendaraan, & parameter ROI
+│   │   ├── detector.py           # Integrasi model inferensi YOLO11 dan pelacak ByteTrack
+│   │   ├── main.py               # Titik masuk FastAPI: rute REST API, WebSocket server, & startup events
+│   │   └── stream_handler.py     # Pengelola penangkapan video stream OpenCV & mekanisme auto-reconnect
 │   ├── assets/
-│   │   └── sample_cctv.mp4     # Sampel video lokal untuk pengujian luring (offline)
-│   ├── requirements.txt        # Dependensi pustaka Python backend
-│   └── yolo11n.pt              # Bobot model Ultralytics YOLO11 Nano
+│   │   └── sample_cctv.mp4       # Video rekaman CCTV lokal untuk pengujian dan fallback luring
+│   ├── requirements.txt          # Daftar paket dependensi Python (FastAPI, Ultralytics, OpenCV, Uvicorn)
+│   └── yolo11n.pt                # Bobot model neural network YOLO11 Nano teroptimasi
+│
 ├── frontend/
-│   ├── index.html              # Tata letak antarmuka dashboard
-│   ├── package.json            # Konfigurasi dependensi JavaScript
-│   └── src/
-│       ├── main.js             # Koneksi WebSocket, integrasi Chart.js, dan pengendali UI
-│       └── styles/
-│           └── index.css       # Gaya tampilan Dark Glassmorphism dan animasi
-├── LICENSE                     # Lisensi MIT (Murdifin)
-├── PRD.md                      # Dokumen Persyaratan Produk (PRD)
-├── StyleGuide.md               # Panduan gaya desain antarmuka (UI/UX)
-├── Tasks.md                    # Daftar tugas dan peta jalan pengembangan
-└── README.md                   # Dokumentasi proyek
+│   ├── src/
+│   │   ├── styles/
+│   │   │   └── index.css         # Desain sistem tema Dark Glassmorphism, efek glow, & responsivitas
+│   │   └── main.js               # Logika klien: koneksi WebSocket, rendering Chart.js, & interaksi kontrol
+│   ├── index.html                # Tata letak grid antarmuka command center dashboard
+│   └── package.json              # Konfigurasi dependensi JavaScript (Vite, Chart.js, Lucide)
+│
+├── LICENSE                       # Berkas lisensi resmi MIT (Hak Cipta Murdifin)
+├── PRD.md                        # Dokumen Persyaratan Produk (Product Requirements Document)
+├── StyleGuide.md                 # Pedoman standar desain antarmuka dan palet warna (UI/UX)
+├── Tasks.md                      # Log tugas pengembangan, daftar checklist, dan peta jalan fitur
+└── README.md                     # Dokumentasi komprehensif proyek
 `
+
+### Penjelasan Modul Utama
+
+| Modul / Sub-Sistem | Komponen Utama | Peran dan Tanggung Jawab |
+| :--- | :--- | :--- |
+| **AI & Analytics Backend** | detector.py, nalytics.py | Menjalankan inferensi model YOLO11 pada frame video, melakukan pelacakan id kendaraan antar-frame (ByteTrack), menghitung klasifikasi kepadatan lalu lintas, serta menghitung kendaraan yang melewati garis batas ROI. |
+| **Stream & Transmission** | stream_handler.py, main.py | Menangani pembacaan sumber video multi-protokol (RTSP, HLS, MP4), menyediakan endpoint MJPEG untuk streaming visual berlatensi rendah, dan menyiarkan telemetri metrik secara real-time via WebSocket. |
+| **Frontend Web Dashboard** | main.js, index.css, index.html | Menampilkan antarmuka operator modern berbasis web untuk memantau umpan kamera secara langsung, memvisualisasikan grafik tren volume per menit, serta memberikan kendali penuh pada pengubahan kamera dan sakelar anotasi. |
+| **Dokumentasi Proyek** | PRD.md, StyleGuide.md, Tasks.md | Menyediakan spesifikasi kebutuhan fungsional, pedoman desain UI/UX, dan panduan teknis pengembangan sistem. |
 
 ---
 
