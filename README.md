@@ -1,66 +1,66 @@
-# 🚗 Smart City Real-Time Vehicle Detection & Traffic Analytics System
+﻿# Sistem Deteksi Kendaraan dan Analisis Lalu Lintas Real-Time (YOLO11 & FastAPI)
 
-[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100%2B-009688.svg)](https://fastapi.tiangolo.com/)
-[![YOLOv11](https://img.shields.io/badge/YOLOv11-Ultralytics-FF6F00.svg)](https://docs.ultralytics.com/)
+[![YOLO11](https://img.shields.io/badge/YOLO-v11-00FFFF.svg)](https://docs.ultralytics.com/)
 [![Vite](https://img.shields.io/badge/Vite-5.0-646CFF.svg)](https://vitejs.dev/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-A state-of-the-art **Intelligent Transportation System (ITS)** built with **YOLOv11**, **ByteTrack**, **FastAPI**, and a **Futuristic Dark Glassmorphism Web Dashboard**. The application processes public CCTV video feeds (RTSP/HLS streams or local MP4 files) in real-time, performing automated vehicle classification, object tracking, traffic density estimation, ROI line-crossing counting, and live telemetry streaming over WebSockets.
-
----
-
-## 🌟 Key Features
-
-- **🤖 YOLOv11 Object Detection & Tracking:** Real-time detection and persistent tracking (ByteTrack) for 4 primary vehicle categories:
-  - 🚗 **Mobil (Car)**
-  - 🏍️ **Sepeda Motor (Motorcycle)**
-  - 🚌 **Bus**
-  - 🚚 **Truk (Truck)**
-- **📊 Real-Time Traffic Analytics:**
-  - **Active Vehicle Count:** Live breakdown per vehicle class in frame.
-  - **Traffic Density Classifier:** Calculates congestion level (**LANCAR** < 8, **SEDANG** 8-18, **MACET** > 18) with dynamic glowing status badges and gauge meters.
-  - **Virtual ROI Line Crossing:** Tracks and counts vehicles crossing a defined ROI line.
-- **📺 Multicast Decoupled Streaming:** Decoupled background inference thread running at ~30 FPS; supports multiple concurrent dashboard clients without redundant model compute.
-- **🎛️ Interactive Dashboard:**
-  - Glassmorphism dark mode command center design adhering to **StyleGuide.md**.
-  - MJPEG video feed player with toggleable YOLO Bounding Boxes and ROI Counting Lines.
-  - Real-time smooth trend line chart powered by **Chart.js**.
-  - Multi-CCTV camera switcher preset selector.
-  - Snapshot download feature for saving annotated CCTV images.
+Sistem Transportasi Cerdas (Intelligent Transportation System / ITS) berbasis **YOLO11**, **ByteTrack**, **FastAPI**, dan **Dashboard Web Interaktif**. Aplikasi ini memproses aliran video CCTV publik (protokol RTSP/HLS atau berkas video MP4 lokal) secara langsung (real-time) untuk klasifikasi kendaraan, pelacakan pergerakan, estimasi tingkat kepadatan lalu lintas, penghitungan kendaraan berbasis garis batas ROI (line-crossing), serta streaming telemetri melalui WebSocket.
 
 ---
 
-## 🏗️ System Architecture
+## Fitur Utama
 
-```mermaid
+- **Deteksi dan Pelacakan Objek (YOLO11 & ByteTrack)**: Deteksi langsung dan pelacakan presisi (ByteTrack) untuk 4 kategori kendaraan utama:
+  - Mobil (Car)
+  - Sepeda Motor (Motorcycle)
+  - Bus
+  - Truk (Truck)
+- **Analisis Lalu Lintas Real-Time**:
+  - **Penghitungan Kendaraan Aktif**: Rincian jumlah kendaraan per kelas yang berada di dalam frame secara langsung.
+  - **Klasifikasi Kepadatan Lalu Lintas**: Menghitung tingkat kepadatan lalu lintas (LANCAR < 8, SEDANG 8-18, MACET > 18).
+  - **Penghitungan Garis Batas Virtual (ROI Line Crossing)**: Melacak dan menghitung akumulasi kendaraan yang melintasi garis pemantauan yang ditentukan.
+- **Streaming Multicast Terpisah (Decoupled)**: Thread inferensi latar belakang berjalan pada ~30 FPS; mendukung banyak klien dashboard secara bersamaan tanpa redundansi komputasi model AI.
+- **Dashboard Web Interaktif**:
+  - Tampilan antarmuka pusat kendali berbasis *Dark Glassmorphism*.
+  - Pemutar video stream MJPEG dengan opsi sakelar tampilan bounding box dan garis batas ROI.
+  - Grafik tren volume lalu lintas real-time menggunakan Chart.js.
+  - Menu pemilih sumber kamera CCTV (preset switcher).
+  - Fitur unduh tangkapan layar (snapshot) beranotasi kualitas tinggi.
+
+---
+
+## Arsitektur Sistem
+
+`mermaid
 flowchart TD
-    subgraph Video_Sources["1. Video Feed Ingestion"]
-        RTSP["Public RTSP Feed"]
-        HLS["Public HLS (.m3u8) Stream"]
-        Local["Local MP4 Sample Video"]
+    subgraph Sumber_Video["1. Sumber Umpan Video"]
+        RTSP["Aliran RTSP Publik"]
+        HLS["Aliran HLS (.m3u8) Publik"]
+        Local["Berkas Sampel MP4 Lokal"]
     end
 
-    subgraph Backend_Engine["2. FastAPI & AI Engine"]
-        Decoder["OpenCV Stream Decoder"]
-        YOLO["Ultralytics YOLOv11 Engine"]
-        Tracker["ByteTrack ID Tracker"]
-        Analytics["Analytics Core (Density & ROI)"]
+    subgraph Backend_Engine["2. Backend FastAPI & Mesin AI"]
+        Decoder["Dekoder Aliran OpenCV"]
+        YOLO["Mesin Ultralytics YOLO11"]
+        Tracker["Pelacak Objek ByteTrack"]
+        Analytics["Modul Analisis (Kepadatan & ROI)"]
     end
 
-    subgraph Transmission["3. Realtime Transmission Layer"]
-        MJPEG["MJPEG Video Streamer (/api/stream/video)"]
-        WS["WebSocket Telemetry Server (/ws/telemetry)"]
+    subgraph Transmisi["3. Lapisan Transmisi Real-Time"]
+        MJPEG["Streamer Video MJPEG (/api/stream/video)"]
+        WS["Server Telemetri WebSocket (/ws/telemetry)"]
     end
 
-    subgraph Dashboard_UI["4. Frontend Dashboard"]
-        Player["Video Player Canvas"]
-        KPIs["Telemetry Cards & Status Badges"]
-        Chart["Chart.js Real-time Trend"]
-        Controls["Camera Switcher & Overlays"]
+    subgraph Frontend_UI["4. Dashboard Antarmuka Web"]
+        Player["Kanvas Pemutar Video"]
+        KPIs["Kartu Telemetri & Status Kepadatan"]
+        Chart["Grafik Tren Real-Time Chart.js"]
+        Controls["Pengalih Kamera & Sakelar Overlay"]
     end
 
-    Video_Sources --> Decoder
+    Sumber_Video --> Decoder
     Decoder --> YOLO
     YOLO --> Tracker
     Tracker --> Analytics
@@ -70,120 +70,122 @@ flowchart TD
     WS --> KPIs
     WS --> Chart
     Controls --> Decoder
-```
+`
 
 ---
 
-## 🚀 Quick Start Guide
-
-### Prerequisites
+## Prasyarat Sistem
 
 - **Python 3.10+**
 - **Node.js 18+** & **npm**
-- **FFmpeg** (Recommended for OpenCV HLS stream playback)
+- **FFmpeg** (Disarankan untuk pemutaran aliran HLS pada OpenCV)
 
 ---
 
-### 1. Backend Setup (FastAPI & YOLOv11)
+## Panduan Instalasi dan Penggunaan
 
-1. Navigate to the backend directory:
-   ```bash
+### 1. Konfigurasi Backend (FastAPI & YOLO11)
+
+1. Masuk ke direktori backend:
+   `ash
    cd backend
-   ```
+   `
 
-2. (Optional) Create and activate a Python virtual environment:
-   ```bash
+2. Buat dan aktifkan virtual environment (opsional tetapi disarankan):
+   `ash
    python -m venv venv
-   # On Windows:
+   # Windows:
    venv\Scripts\activate
-   # On macOS/Linux:
+   # Linux/macOS:
    source venv/bin/activate
-   ```
+   `
 
-3. Install required dependencies:
-   ```bash
+3. Pasang paket dependensi yang diperlukan:
+   `ash
    pip install -r requirements.txt
-   ```
+   `
 
-4. Start the FastAPI server:
-   ```bash
+4. Jalankan server FastAPI:
+   `ash
    python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-   ```
+   `
 
-   - Server API Docs: `http://localhost:8000/docs`
-   - MJPEG Stream: `http://localhost:8000/api/stream/video`
-   - WebSocket Telemetry: `ws://localhost:8000/ws/telemetry`
+   - Dokumentasi Interaktif Swagger UI: http://localhost:8000/docs
+   - Aliran Video MJPEG: http://localhost:8000/api/stream/video
+   - Endpoint WebSocket Telemetri: ws://localhost:8000/ws/telemetry
 
 ---
 
-### 2. Frontend Setup (Dashboard Web UI)
+### 2. Konfigurasi Frontend (Dashboard Web)
 
-1. Navigate to the frontend directory:
-   ```bash
+1. Buka terminal baru dan masuk ke direktori frontend:
+   `ash
    cd frontend
-   ```
+   `
 
-2. Install npm packages:
-   ```bash
+2. Pasang paket npm:
+   `ash
    npm install
-   ```
+   `
 
-3. Start the Vite development server:
-   ```bash
+3. Jalankan server pengembang Vite:
+   `ash
    npm run dev
-   ```
+   `
 
-4. Open your browser and navigate to:
-   ```
+4. Buka peramban (browser) dan akses alamat:
+   `	ext
    http://localhost:3000
-   ```
+   `
 
 ---
 
-## 📡 API Endpoints
+## Daftar Endpoint API
 
-| Method | Endpoint | Description |
+| Metode | Endpoint | Deskripsi |
 | :--- | :--- | :--- |
-| `GET` | `/api/health` | Backend status, active camera, model version, and live FPS. |
-| `GET` | `/api/cameras` | List of available CCTV stream presets. |
-| `POST` | `/api/stream/select` | Switch active camera source (`{ "camera_id": "cam-01" }`). |
-| `POST` | `/api/stream/toggle` | Toggle Bounding Boxes / ROI line overlays. |
-| `GET` | `/api/stream/video` | MJPEG real-time video stream. |
-| `WS` | `/ws/telemetry` | WebSocket endpoint broadcasting JSON telemetry data at 5Hz. |
-| `GET` | `/api/snapshot` | Download high-quality JPEG snapshot of the current frame. |
+| GET | /api/health | Status server backend, kamera aktif, versi model, dan FPS langsung |
+| GET | /api/cameras | Daftar preset sumber aliran kamera CCTV yang tersedia |
+| POST | /api/stream/select | Mengubah sumber kamera aktif ({ "camera_id": "cam-01" }) |
+| POST | /api/stream/toggle | Mengaktifkan/menonaktifkan overlay bounding box dan garis ROI |
+| GET | /api/stream/video | Aliran video real-time berformat MJPEG |
+| WS | /ws/telemetry | Endpoint WebSocket penyiaran data telemetri JSON (frekuensi 5Hz) |
+| GET | /api/snapshot | Mengunduh berkas tangkapan layar JPEG dari frame terkini |
 
 ---
 
-## 📁 Repository Structure
+## Struktur Direktori Repositori
 
-```
+`	ext
 Deteksi-Kendaraan/
 ├── backend/
 │   ├── app/
 │   │   ├── __init__.py
-│   │   ├── analytics.py        # Vehicle counting, density status & ROI logic
-│   │   ├── config.py           # Presets, vehicle class maps & ROI coordinates
-│   │   ├── detector.py         # YOLOv11 & ByteTrack integration
-│   │   ├── main.py             # FastAPI REST endpoints & WebSocket server
-│   │   └── stream_handler.py   # OpenCV video stream ingestion & auto-reconnect
+│   │   ├── analytics.py        # Logika penghitungan kendaraan, status kepadatan, dan ROI
+│   │   ├── config.py           # Konfigurasi preset, pemetaan kelas kendaraan, dan koordinat ROI
+│   │   ├── detector.py         # Integrasi model YOLO11 dan ByteTrack
+│   │   ├── main.py             # Endpoint REST API FastAPI dan server WebSocket
+│   │   └── stream_handler.py   # Pengambilan video stream OpenCV dan rekoneksi otomatis
 │   ├── assets/
-│   │   └── sample_cctv.mp4     # Local offline fallback video
-│   ├── requirements.txt
-│   └── yolo11n.pt              # Ultralytics YOLOv11 nano model weights
+│   │   └── sample_cctv.mp4     # Sampel video lokal untuk pengujian luring (offline)
+│   ├── requirements.txt        # Dependensi pustaka Python backend
+│   └── yolo11n.pt              # Bobot model Ultralytics YOLO11 Nano
 ├── frontend/
-│   ├── index.html              # Bento grid UI layout
-│   ├── package.json
+│   ├── index.html              # Tata letak antarmuka dashboard
+│   ├── package.json            # Konfigurasi dependensi JavaScript
 │   └── src/
-│       ├── main.js             # WebSocket connection, Chart.js & UI handlers
+│       ├── main.js             # Koneksi WebSocket, integrasi Chart.js, dan pengendali UI
 │       └── styles/
-│           └── index.css       # Dark glassmorphism styling & animations
-├── PRD.md                      # Product Requirements Document
-├── StyleGuide.md               # UI/UX design specifications
-└── Tasks.md                    # MVP Roadmap & Execution tasks
-```
+│           └── index.css       # Gaya tampilan Dark Glassmorphism dan animasi
+├── LICENSE                     # Lisensi MIT (Murdifin)
+├── PRD.md                      # Dokumen Persyaratan Produk (PRD)
+├── StyleGuide.md               # Panduan gaya desain antarmuka (UI/UX)
+├── Tasks.md                    # Daftar tugas dan peta jalan pengembangan
+└── README.md                   # Dokumentasi proyek
+`
 
 ---
 
-## 📄 License
+## Lisensi
 
-Distributed under the MIT License. See `LICENSE` for more information.
+Proyek ini dilisensikan di bawah [MIT License](LICENSE) - Hak Cipta (c) 2026 **Murdifin**.
